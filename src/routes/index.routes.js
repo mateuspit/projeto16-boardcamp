@@ -1,7 +1,7 @@
 import { Router } from "express";
-import locatorRouter from "./locator.routes.js";
+import gameRouter from "./game.routes.js";
 
 const router = Router(); 
-router.use(locatorRouter);
+router.use(gameRouter);
 
 export default router;
