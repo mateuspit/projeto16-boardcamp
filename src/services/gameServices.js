@@ -6,19 +6,21 @@ export async function getGamesService(gameFilters) {
         let allGames;
         const nameFilter = gameFilters.name?.toLowerCase() + "%";
         let filterString = `${basicDBString}`;
-
-        allGames = await db.query(`${filterString}`);
+        let values = [];
 
         if (gameFilters.name) {
-            const filterNameString = `WHERE LOWER(name) LIKE $1`;
-            allGames = await db.query(`${basicDBString} ${filterNameString}`, [nameFilter]);            
+            const filterNameString = ` WHERE LOWER(name) LIKE $1`;
+            filterString += filterNameString;
+            values = [nameFilter];
         }
         if (gameFilters.offset) {
-            const filterOffsetString = `games OFFSET $1`;
-            allGames = await db.query(`${basicDBString} ${filterOffsetString}`, [gameFilters.offset])
+            //const filterOffsetString = ` OFFSET $2`;
+            const filterOffsetString = gameFilters.name ? ` OFFSET $2` : ` OFFSET $1`;
+            filterString += filterOffsetString;
+            values.push(gameFilters.offset);
         }
         if (gameFilters.order || gameFilters.desc) {
-            const filterOrderString = `games ORDER BY name`
+            const filterOrderString = ` ORDER BY name`
             if (gameFilters.order === "name" && gameFilters.desc === "true") {
                 const filterOrderDesc = `DESC`;
                 allGames = await db.query(`${basicDBString} ${filterOrderString} ${filterOrderDesc}`);
@@ -28,6 +30,9 @@ export async function getGamesService(gameFilters) {
                 allGames = await db.query(`${basicDBString} ${filterOrderString} ${filterOrderDesc}`);
             }
         }
+
+        allGames = await db.query(filterString, values); //vem tudo
+        //allGames = await db.query(filterString,[nameFilter]); //vem name
 
         return allGames.rows;
     }
