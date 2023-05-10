@@ -1,9 +1,13 @@
 import { getGamesService, postGameService } from "../services/gameServices.js";
 
-export async function getGames(req, res) {
+//export async function getGames(req, res) {
+export async function getGames(req,res) {
     //const { name, offset, order } = req.query
     try {
         const allGames = await getGamesService(req.query);
+        //const allGames = await getGamesService();
+        //console.log(allGames);
+        //console.log(allGames.length === 0);
         if (allGames.length === 0) return res.status(404).send(`Nenhum jogo encontrado no banco de dados`);
         return res.send(allGames);
     }

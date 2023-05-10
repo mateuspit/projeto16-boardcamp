@@ -1,11 +1,34 @@
 import { db } from "../database/database-connection.js";
 
-export async function getGamesService(filters) {
-    //a entrada é filtrada pelos middlewares usando schemas.
-    //em services ocorrem as operações, as funções
-    //o resultado das funções dão a resposta nos controllers
+export async function getGamesService(gameFilters) {
+    const basicDBString = `SELECT * FROM games`;
     try {
-        const allGames = await db.query("SELECT * FROM games;");
+        let allGames;
+        const nameFilter = gameFilters.name?.toLowerCase() + "%";
+        let filterString = `${basicDBString}`;
+
+        allGames = await db.query(`${filterString}`);
+
+        if (gameFilters.name) {
+            const filterNameString = `WHERE LOWER(name) LIKE $1`;
+            allGames = await db.query(`${basicDBString} ${filterNameString}`, [nameFilter]);            
+        }
+        if (gameFilters.offset) {
+            const filterOffsetString = `games OFFSET $1`;
+            allGames = await db.query(`${basicDBString} ${filterOffsetString}`, [gameFilters.offset])
+        }
+        if (gameFilters.order || gameFilters.desc) {
+            const filterOrderString = `games ORDER BY name`
+            if (gameFilters.order === "name" && gameFilters.desc === "true") {
+                const filterOrderDesc = `DESC`;
+                allGames = await db.query(`${basicDBString} ${filterOrderString} ${filterOrderDesc}`);
+            }
+            else {
+                const filterOrderDesc = `ASC`;
+                allGames = await db.query(`${basicDBString} ${filterOrderString} ${filterOrderDesc}`);
+            }
+        }
+
         return allGames.rows;
     }
     catch (err) {
@@ -33,25 +56,3 @@ export async function postGameService(reqGame) {
         console.log(err.message);
     }
 }
-
-//export async function getGamesByFilterService(gameFilters) {
-//    //const { name, offset, order } = req.query
-//    let response = "";
-//    console.log(gameFilters);
-//    console.log("gameFilters");
-//    try {
-//        if (gameFilters.name) {
-//            response =+"tem nome";
-//        }
-//        if (gameFilters.offset) {
-//            response =+"tem offset";
-//        }
-//        if (gameFilters.order) {
-//            response =+"tem order";
-//        }
-//        return response;
-//    }
-//    catch (err) {
-//        console.log(err.message);
-//    }
-//}
