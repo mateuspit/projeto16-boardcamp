@@ -13,22 +13,23 @@ export async function getGamesService(gameFilters) {
             filterString += filterNameString;
             values = [nameFilter];
         }
+        if (gameFilters.order || gameFilters.desc) {
+            const filterOrderString = ` ORDER BY name`
+            filterString += filterOrderString;
+            if (gameFilters.order === "name" && gameFilters.desc === "true") {
+                const filterOrderDesc = ` DESC`;
+                filterString += filterOrderDesc;
+            }
+            else {
+                const filterOrderDesc = ` ASC`;
+                filterString += filterOrderDesc;
+            }
+        }
         if (gameFilters.offset) {
             //const filterOffsetString = ` OFFSET $2`;
             const filterOffsetString = gameFilters.name ? ` OFFSET $2` : ` OFFSET $1`;
             filterString += filterOffsetString;
             values.push(gameFilters.offset);
-        }
-        if (gameFilters.order || gameFilters.desc) {
-            const filterOrderString = ` ORDER BY name`
-            if (gameFilters.order === "name" && gameFilters.desc === "true") {
-                const filterOrderDesc = `DESC`;
-                allGames = await db.query(`${basicDBString} ${filterOrderString} ${filterOrderDesc}`);
-            }
-            else {
-                const filterOrderDesc = `ASC`;
-                allGames = await db.query(`${basicDBString} ${filterOrderString} ${filterOrderDesc}`);
-            }
         }
 
         allGames = await db.query(filterString, values); //vem tudo
