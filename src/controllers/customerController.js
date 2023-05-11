@@ -1,4 +1,4 @@
-import { getCustomersServices, getCustomersByIdServices } from "../services/customerServices.js";
+import { getCustomersServices, getCustomersByIdServices, postCustomersServices, findCustomer } from "../services/customerServices.js";
 
 
 export async function getCustomers(req, res) {
@@ -28,7 +28,10 @@ export async function getCustomersById(req, res) {
 
 export async function postCustomer(req, res) {
     try {
-        
+        console.log(await findCustomer(req.body.cpf));
+        if(await findCustomer(req.body.cpf)) return res.status(409).send("Usuario já existe!");
+        await postCustomersServices(req.body);
+        return res.sendStatus(201);
     }
     catch (err) {
         return console.log(err.message);

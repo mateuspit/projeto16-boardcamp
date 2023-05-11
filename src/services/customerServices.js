@@ -54,3 +54,38 @@ export async function getCustomersByIdServices(id) {
         return console.log(err.message);
     }
 }
+
+export async function postCustomersServices(customerData){
+    //a entrada é filtrada pelos middlewares usando schemas.
+    //em services ocorrem as operações, as funções
+    //o resultado das funções dão a resposta nos controllers
+    //o req.body é enviado ao service pelo controller
+    //console.log(id);
+    try{
+        console.log("postCustomersServices",customerData.birthday);
+        await db.query(`INSERT INTO customers (name, phone, cpf, birthday) VALUES ($1,$2,$3,to_date($4, 'YYYY-MM-DD'));`,[
+            customerData.name,
+            customerData.phone,
+            customerData.cpf,
+            customerData.birthday
+        ]);
+        console.log("postCustomersServices2",customerData.birthday);
+        return true;
+    }
+    catch (err){
+        return console.log(err.message);
+    }
+}
+
+export async function findCustomer(customerCpf){
+    try{
+        console.log("findCustomer");
+        const customerExists = await db.query(`SELECT * FROM customers 
+                                            WHERE cpf = $1`, [customerCpf]);
+        if (customerExists.rows[0]) return true;
+        return false;
+    }
+    catch (err){
+        return console.log(err.message);
+    }
+}
