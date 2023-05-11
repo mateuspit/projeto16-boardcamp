@@ -8,6 +8,7 @@ export async function getCustomers(req, res) {
         console.log("id",req.params.id);
         console.log("query",req.query);
         const allCustomers = await getCustomersServices(req.query);
+        if(allCustomers.length === 0) return res.status(404).send("Cliente n encontrado!")
         return res.send(allCustomers);
     }
     catch (err) {
