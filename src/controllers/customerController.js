@@ -29,9 +29,21 @@ export async function getCustomersById(req, res) {
 export async function postCustomer(req, res) {
     try {
         console.log(await findCustomer(req.body.cpf));
-        if(await findCustomer(req.body.cpf)) return res.status(409).send("Usuario já existe!");
+        if (await findCustomer(req.body.cpf)) return res.status(409).send("Usuario já existe!");
         await postCustomersServices(req.body);
         return res.sendStatus(201);
+    }
+    catch (err) {
+        return console.log(err.message);
+    }
+}
+
+export async function attCustomer(req, res) {
+    try {
+        const allCpfs = await db.query(`SELECT cpf FROM customers`);
+        console.log(allCpfs)
+        //if (!oldCpf) return res.status(409).send("Não é possivel alterar o CPF");
+        return res.sendStatus(200);
     }
     catch (err) {
         return console.log(err.message);
