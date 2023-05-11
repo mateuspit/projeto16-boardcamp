@@ -17,29 +17,50 @@ export async function getGamesService(gameFilters) {
             filterString += filterNameString;
             values = [nameFilter];
         }
-        if (gameFilters.order || gameFilters.desc) {
-            const filterOrderString = ` ORDER BY name`
+        if (gameFilters.order) {
+            const filterOrderString = ` ORDER BY ${gameFilters.order}`;
+            //const filterOrderString = ` ORDER BY name`
+            //gameFilters.name ? ` OFFSET $2` : ` OFFSET $1`;
             filterString += filterOrderString;
-            if (gameFilters.order === "name" && gameFilters.desc === "true") {
-                const filterOrderDesc = ` DESC`;
-                filterString += filterOrderDesc;
-            }
-            else {
-                const filterOrderAsc = ` ASC`;
-                filterString += filterOrderAsc;
+            if (gameFilters.order && gameFilters.desc === "true") {
+                if (gameFilters.desc === "true") {
+                    const filterOrderDesc = ` DESC`;
+                    filterString += filterOrderDesc;
+                }
+                else {
+                    const filterOrderAsc = ` ASC`;
+                    filterString += filterOrderAsc;
+                }
             }
         }
         if (gameFilters.offset) {
-            const filterOffsetString = gameFilters.name ? ` OFFSET $2` : ` OFFSET $1`;
+            const filterOffsetString = (gameFilters.name)
+                ? ` OFFSET $2` : ` OFFSET $1`;
+            //const filterOffsetString = (gameFilters.name && gameFilters.order)
+            //    ? ` OFFSET $3` : ((gameFilters.name || gameFilters.order)
+            //        ? ` OFFSET $2` : ` OFFSET $1`);
             filterString += filterOffsetString;
             values.push(gameFilters.offset);
         }
+        console.log("gameFilters", gameFilters);
+        console.log("3", (Object.keys(gameFilters).length) === 3);
+        console.log("2", (Object.keys(gameFilters).length) === 2);
+        console.log("1", (Object.keys(gameFilters).length) === 1);
         if (gameFilters.limit) {
-            const filterLimitString = (gameFilters.name && gameFilters.offset) ? ` LIMIT $3` : ((gameFilters.name || gameFilters.offset) ? ` LIMIT $2` : ` LIMIT $1`);
+            const filterLimitString = (gameFilters.name && gameFilters.offset)
+                ? ` LIMIT $3` : ((gameFilters.name || gameFilters.offset)
+                    ? ` LIMIT $2` : ` LIMIT $1`);
+            //const filterLimitString = (Object.keys(gameFilters).length === 4)
+            //    ? ` LIMIT $4` : ((Object.keys(gameFilters).length === 3)
+            //        ? ` LIMIT $3` : ((Object.keys(gameFilters).length === 2)
+            //            ? ` LIMIT $2` : ` LIMIT $1`));
             filterString += filterLimitString;
             values.push(gameFilters.limit);
+            //values.push(1);
         }
 
+        console.log("filterString:", filterString);
+        console.log("values:", values);
         allGames = await db.query(filterString, values);
 
         return allGames.rows;
@@ -48,6 +69,7 @@ export async function getGamesService(gameFilters) {
         console.log(err.message);
     }
 }
+
 
 export async function postGameService(reqGame) {
     //a entrada é filtrada pelos middlewares usando schemas.
