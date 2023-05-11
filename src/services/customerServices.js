@@ -6,7 +6,7 @@ export async function getCostumersServices(customersFilters) {
     //o resultado das funções dão a resposta nos controllers
     //o req.body é enviado ao service pelo controller
     try {
-
+        
     }
     catch (err) {
         console.log(err.message);

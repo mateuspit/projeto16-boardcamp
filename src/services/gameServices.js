@@ -74,7 +74,8 @@ export async function findGameService(gameName) {
     try {
         const gameExists = await db.query(`SELECT * FROM games
         WHERE name = $1`, [gameName]);
-        if (gameExists) return true;
+        //console.log("existe?",gameExists.rows[0]);
+        if (!gameExists.rows[0]) return true;
         return false;
     }
     catch (err) {
