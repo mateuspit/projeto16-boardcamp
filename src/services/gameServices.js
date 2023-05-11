@@ -18,7 +18,7 @@ export async function getGamesService(gameFilters) {
             values = [nameFilter];
         }
         if (gameFilters.order) {
-            const filterOrderString = ` ORDER BY ${"gameFilters.order"}`;
+            const filterOrderString = ` ORDER BY "${gameFilters.order}"`;
             //const filterOrderString = ` ORDER BY name`
             //gameFilters.name ? ` OFFSET $2` : ` OFFSET $1`;
             filterString += filterOrderString;
