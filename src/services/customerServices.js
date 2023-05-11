@@ -108,3 +108,12 @@ export async function findCustomer(customerCpf) {
         return console.log(err.message);
     }
 }
+
+export async function attCustomerServices(){
+    try{
+
+    }
+    catch (err){
+        return console.log(err.message);
+    }
+}
