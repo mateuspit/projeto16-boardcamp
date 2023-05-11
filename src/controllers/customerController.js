@@ -2,8 +2,12 @@ import { getCustomersServices, getCustomersByIdServices } from "../services/cust
 
 
 export async function getCustomers(req, res) {
+    console.log("test");
     try {
-        const allCustomers = await getCustomersServices();
+        //console.log(req);
+        console.log("id",req.params.id);
+        console.log("query",req.query);
+        const allCustomers = await getCustomersServices(req.query);
         return res.send(allCustomers);
     }
     catch (err) {
