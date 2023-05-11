@@ -1,6 +1,10 @@
 import { db } from "../database/database-connection.js";
 
 export async function getGamesService(gameFilters) {
+    //a entrada é filtrada pelos middlewares usando schemas.
+    //em services ocorrem as operações, as funções
+    //o resultado das funções dão a resposta nos controllers
+    //o req.body é enviado ao service pelo controller
     const basicDBString = `SELECT * FROM games`;
     try {
         let allGames;
@@ -31,13 +35,12 @@ export async function getGamesService(gameFilters) {
             values.push(gameFilters.offset);
         }
         if (gameFilters.limit) {
-            const filterLimitString = (gameFilters.name && gameFilters.offset) ? ` LIMIT $3` : ((gameFilters.name || gameFilters.offset ) ? ` LIMIT $2` : ` LIMIT $1`);
+            const filterLimitString = (gameFilters.name && gameFilters.offset) ? ` LIMIT $3` : ((gameFilters.name || gameFilters.offset) ? ` LIMIT $2` : ` LIMIT $1`);
             filterString += filterLimitString;
             values.push(gameFilters.limit);
         }
 
-        allGames = await db.query(filterString, values); //vem tudo
-        //allGames = await db.query(filterString,[nameFilter]); //vem name
+        allGames = await db.query(filterString, values);
 
         return allGames.rows;
     }
@@ -61,6 +64,18 @@ export async function postGameService(reqGame) {
                 reqGame.pricePerDay
             ]);
         return gameCreated;
+    }
+    catch (err) {
+        console.log(err.message);
+    }
+}
+
+export async function findGameService(gameName) {
+    try {
+        const gameExists = await db.query(`SELECT * FROM games
+        WHERE name = $1`, [gameName]);
+        if (gameExists) return true;
+        return false;
     }
     catch (err) {
         console.log(err.message);
