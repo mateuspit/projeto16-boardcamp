@@ -26,10 +26,14 @@ export async function getGamesService(gameFilters) {
             }
         }
         if (gameFilters.offset) {
-            //const filterOffsetString = ` OFFSET $2`;
             const filterOffsetString = gameFilters.name ? ` OFFSET $2` : ` OFFSET $1`;
             filterString += filterOffsetString;
             values.push(gameFilters.offset);
+        }
+        if (gameFilters.limit) {
+            const filterLimitString = (gameFilters.name && gameFilters.offset) ? ` LIMIT $3` : ((gameFilters.name || gameFilters.offset ) ? ` LIMIT $2` : ` LIMIT $1`);
+            filterString += filterLimitString;
+            values.push(gameFilters.limit);
         }
 
         allGames = await db.query(filterString, values); //vem tudo
