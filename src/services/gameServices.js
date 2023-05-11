@@ -25,8 +25,8 @@ export async function getGamesService(gameFilters) {
                 filterString += filterOrderDesc;
             }
             else {
-                const filterOrderDesc = ` ASC`;
-                filterString += filterOrderDesc;
+                const filterOrderAsc = ` ASC`;
+                filterString += filterOrderAsc;
             }
         }
         if (gameFilters.offset) {

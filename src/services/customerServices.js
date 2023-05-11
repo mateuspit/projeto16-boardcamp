@@ -17,8 +17,26 @@ export async function getCustomersServices(customersFilters) {
             filterString += filterCpfString;
             values.push(customersFilters.cpf + `%`);
         }
-
-        //const allCustomers = await db.query(filterString, values);
+        if (customersFilters.order || customersFilters.desc) {
+            const filterOrderString = ` ORDER BY name`;
+            filterString += filterOrderString;
+            if (customersFilters.desc === "true") {
+                const filterOrderDesc = ` DESC`
+                filterString += filterOrderDesc;
+            }
+        }
+        if (customersFilters.offset) {
+            const filterOffsetString = customersFilters.cpf ? ` OFFSET $2` : ` OFFSET $1`;
+            filterString += filterOffsetString;
+            values.push(customersFilters.offset);
+        }
+        if (customersFilters.limit) {
+            const filterLimitString = (customersFilters.cpf && customersFilters.offset)
+                ? ` LIMIT $3` : ((customersFilters.cpf || customersFilters.offset)
+                    ? ` LIMIT $2` : ` LIMIT $1`);
+            filterString += filterLimitString;
+            values.push(customersFilters.limit);
+        }
         const allCustomers = await db.query(filterString, values);
         return allCustomers.rows;
     }
