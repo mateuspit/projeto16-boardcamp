@@ -98,12 +98,13 @@ export async function postCustomersServices(customerData) {
 
 export async function findCustomer(customerCpf) {
     try {
-        //console.log("findCustomer");
-        const customerExists = await db.query(`SELECT cpf FROM customers 
+        console.log(customerCpf);
+        const customerExists = await db.query(`SELECT * FROM customers 
                                             WHERE cpf = $1`, [customerCpf]);
-        console.log("customerExists.rows[0]", customerExists.rows[0]);
-        console.log("customerExists.rows[0].cpf", customerExists.rows[0].cpf);
-        if (customerExists.rows[0].cpf.length !== 0) return customerExists.rows[0].cpf;
+        //console.log("customerExists.rows[0]", customerExists.rows[0]);
+        //console.log("customerExists.rows[0].cpf", customerExists.rows[0].cpf);
+        console.log("customerExists.rows[0]",!!customerExists.rows[0])
+        if (customerExists.rows[0]) return customerExists.rows[0];
         return false;
     }
     catch (err) {
@@ -113,7 +114,7 @@ export async function findCustomer(customerCpf) {
 
 export async function attCustomerServices(newCustomerData) {
     try {
-        console.log("newCustomerData", newCustomerData);
+        //console.log("newCustomerData", newCustomerData);
         await db.query(`UPDATE customers 
                     SET name=$1, phone=$2, cpf=$3, birthday=to_date($4, 'YYYY-MM-DD') 
                     WHERE cpf = $3;`, [

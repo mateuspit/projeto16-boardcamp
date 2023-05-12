@@ -55,11 +55,11 @@ export async function attCustomer(req, res) {
         const getValidCpf = await findCustomer(req.body.cpf);
         //console.log("getValidCpf", getValidCpf);
         //console.log("req.body.cpf", req.body.cpf);
-        console.log("getValidCpf", !!getValidCpf);
+        console.log("getValidCpf", getValidCpf);
         console.log("req.body.cpf !== getValidCpf)", (req.body.cpf !== getValidCpf));
         //console.log("!req.body.cpf", !req.body.cpf);
-        //console.log("body", req.body);
-        if (((req.body.cpf !== getValidCpf))) return res.status(409).send("Não é possivel alterar o CPF");
+        console.log("req.body.cpf", req.body.cpf);
+        if (((req.body.cpf !== getValidCpf.cpf) || !getValidCpf)) return res.status(409).send("Não é possivel alterar o CPF");
         //if (!((req.body.cpf === getValidCpf) || !getValidCpf)) return res.status(409).send("Não é possivel alterar o CPF");
         //await db.query(`UPDATE customers 
         //            SET name=$1, phone=$2, cpf=$3, birthday=to_date($4, 'YYYY-MM-DD') WHERE cpf = $5`, [
