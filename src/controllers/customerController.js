@@ -12,7 +12,7 @@ export async function getCustomers(req, res) {
         console.log(allCustomers);
         allCustomers.forEach((obj) => {
             //const newBirthday = obj.birthday.toISOString().slice(0,10);
-            obj.birthday = obj.birthday.toISOString().slice(0,10);;
+            obj.birthday = obj.birthday.toISOString().slice(0, 10);;
         });
         //console.log(allCustomers);
         return res.send(allCustomers);
@@ -51,10 +51,24 @@ export async function attCustomer(req, res) {
     try {
         //const allCpfs = await db.query(`SELECT cpf FROM customers`);
         //console.log(allCpfs)
-        const validCpf = await db.query(`SELECT cpf FROM customers WHERE cpf = $1`, [req.body.cpf]);
-        console.log(validCpf);
-        if (!(validCpf && (validCpf === req.body.cpf)) || (validCpf)) return res.status(409).send("Não é possivel alterar o CPF");
-        await db.query(``)
+        //const validCpf = await db.query(`SELECT cpf FROM customers WHERE cpf = $1`, [req.body.cpf]);
+        const getValidCpf = await findCustomer(req.body.cpf);
+        //console.log("getValidCpf", getValidCpf);
+        //console.log("req.body.cpf", req.body.cpf);
+        console.log("getValidCpf", !!getValidCpf);
+        console.log("req.body.cpf !== getValidCpf)", (req.body.cpf !== getValidCpf));
+        //console.log("!req.body.cpf", !req.body.cpf);
+        //console.log("body", req.body);
+        if (((req.body.cpf !== getValidCpf))) return res.status(409).send("Não é possivel alterar o CPF");
+        //if (!((req.body.cpf === getValidCpf) || !getValidCpf)) return res.status(409).send("Não é possivel alterar o CPF");
+        //await db.query(`UPDATE customers 
+        //            SET name=$1, phone=$2, cpf=$3, birthday=to_date($4, 'YYYY-MM-DD') WHERE cpf = $5`, [
+        //    req.body.name,
+        //    req.body.phone,
+        //    req.body.cpf,
+        //    req.body.birthday
+        //])
+        await attCustomerServices(req.body);
         //if (!oldCpf) return res.status(409).send("Não é possivel alterar o CPF");
         return res.sendStatus(200);
     }

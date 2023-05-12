@@ -36,7 +36,7 @@ export async function getCustomersServices(customersFilters) {
         if (customersFilters.offset) {
             const filterOffsetString = (customersFilters.cpf)
                 ? ` OFFSET $2` : ` OFFSET $1`;
-                    //? ` OFFSET $2` : ` OFFSET $1`);
+            //? ` OFFSET $2` : ` OFFSET $1`);
             filterString += filterOffsetString;
             values.push(customersFilters.offset);
         }
@@ -49,7 +49,7 @@ export async function getCustomersServices(customersFilters) {
             const filterLimitString = (customersFilters.cpf && customersFilters.offset)
                 ? ` LIMIT $3` : (customersFilters.cpf || customersFilters.offset)
                     ? ` LIMIT $2` : ` LIMIT $1`;
-                        //? ` LIMIT $2` : ` LIMIT $1`);
+            //? ` LIMIT $2` : ` LIMIT $1`);
             filterString += filterLimitString;
             values.push(customersFilters.limit);
         }
@@ -98,10 +98,12 @@ export async function postCustomersServices(customerData) {
 
 export async function findCustomer(customerCpf) {
     try {
-        console.log("findCustomer");
-        const customerExists = await db.query(`SELECT * FROM customers 
+        //console.log("findCustomer");
+        const customerExists = await db.query(`SELECT cpf FROM customers 
                                             WHERE cpf = $1`, [customerCpf]);
-        if (customerExists.rows[0]) return true;
+        console.log("customerExists.rows[0]", customerExists.rows[0]);
+        console.log("customerExists.rows[0].cpf", customerExists.rows[0].cpf);
+        if (customerExists.rows[0].cpf.length !== 0) return customerExists.rows[0].cpf;
         return false;
     }
     catch (err) {
@@ -109,11 +111,19 @@ export async function findCustomer(customerCpf) {
     }
 }
 
-export async function attCustomerServices(){
-    try{
-
+export async function attCustomerServices(newCustomerData) {
+    try {
+        console.log("newCustomerData", newCustomerData);
+        await db.query(`UPDATE customers 
+                    SET name=$1, phone=$2, cpf=$3, birthday=to_date($4, 'YYYY-MM-DD') 
+                    WHERE cpf = $3;`, [
+                        newCustomerData.name,
+                        newCustomerData.phone,
+                        newCustomerData.cpf,
+                        newCustomerData.birthday
+                        ])
     }
-    catch (err){
+    catch (err) {
         return console.log(err.message);
     }
 }
