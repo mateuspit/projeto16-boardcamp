@@ -74,26 +74,28 @@ export async function getRentalsServices(rentalFilters) {
         let filterString = basicDBString;
         let rentals
         let values = [];
-        if (!rentalFilters.length) {
+        if (rentalFilters.length) {
             rentals = await db.query(filterString);
-            console.log(rentals);
+            //console.log(rentals);
         }
-        if (rentalFilters.customerId) {
-            const customerIdFilter = ` WHERE rentals."customersId"=rentalFilter.customerId`
+        else{
+            if (rentalFilters.customerId) {
+                console.log("rentalFilters.customerIdfff");
+                const customerIdFilter = ` WHERE rentals."customerId"=$1`;
+                filterString += customerIdFilter;
+                values.push(rentalFilters.customerId);
+            }
+            console.log("filterString",filterString);
+            console.log("values",values);
+            rentals = await db.query(filterString, values);
         }
-        console.log("rentalFilters", rentalFilters);
-        console.log("rentalFilters.length === 0", (rentalFilters.rows));
-        console.log("filterString", filterString);
-        console.log("values", values);
+        
+        //console.log("rentalFilters", rentalFilters);
+        //console.log("rentalFilters.length === 0", (rentalFilters.rows));
+        //console.log("filterString", filterString);
+        //console.log("values", values);
 
-
-        //const 
-        //console.log("typeof rr.rentDate === 'string'", typeof rentals.rows[0].rentDate);
-        //const test = rentals.rows[0].rentDate.slice(0, 10);
-        //console.log("test", test);
-        //console.log(JSON.stringify(rentals.rows[0]));
-        //console.log(typeof rentals.rows[0].rentDate);
-        //console.log(new Date(rentals.rows[0].rentDate).toISOString().slice(0, 10));
+        
         const rentalsDataObject = rentals.rows.map(rr => ({
             id: rr.id,
             customerId: rr.customerId,
@@ -112,24 +114,7 @@ export async function getRentalsServices(rentalFilters) {
                 name: rr.gameName
             }
         }));
-        //const rentalsDataObject = {
-        //    customerId: rentals.rows.customerId,
-        //    gameId: rentals.rows.gameId,
-        //    rentDate: rentals.rows.rentDate,
-        //    daysRented: rentals.rows.daysRented,
-        //    returnDate: rentals.rows.returnDate,
-        //    originalPrice: rentals.rows.originalPrice,
-        //    delayFee: rentals.rows.delayFee,
-        //    customer: {
-        //        id: rentals.rows.customerId,
-        //        name: rentals.rows.customerName
-        //    },
-        //    game: {
-        //        id: rentals.rows.gameId,
-        //        name: rentals.rows.gameName
-        //    }
-        //};
-        console.log(rentalsDataObject);
+
         return rentalsDataObject;
     }
     catch (err) {
