@@ -96,7 +96,7 @@ export async function postCustomersServices(customerData) {
     }
 }
 
-export async function findCustomer(customerCpf) {
+export async function findCustomerByCpf(customerCpf) {
     try {
         console.log(customerCpf);
         const customerExists = await db.query(`SELECT * FROM customers 
@@ -125,6 +125,19 @@ export async function attCustomerServices(newCustomerData) {
                         ])
     }
     catch (err) {
+        return console.log(err.message);
+    }
+}
+
+export async function findCustomerById(customerId){
+    try{
+        const costumerExists = await db.query(`SELECT * FROM customers WHERE id = $1`, [customerId]);
+        //console.log(costumerExists.rows);
+        //console.log(!!costumerExists.rows.length);
+        if (costumerExists.rows.length) return costumerExists.rows[0];
+        return false;
+    }
+    catch (err){
         return console.log(err.message);
     }
 }

@@ -1,4 +1,4 @@
-export default function validadeNewCustomer(schema) {
+export default function validateRentalData(schema) {
     return ((req, res, next) => {
         const { error } = schema.validate(req.body, { abortEarly: false });
         const errorMessages = error?.details.map(ed => ed.message);

@@ -70,7 +70,6 @@ export async function getGamesService(gameFilters) {
     }
 }
 
-
 export async function postGameService(reqGame) {
     //a entrada é filtrada pelos middlewares usando schemas.
     //em services ocorrem as operações, as funções
@@ -104,3 +103,17 @@ export async function findGameService(gameName) {
         console.log(err.message);
     }
 }
+
+export async function findGameById(gameId) {
+    try {
+        const gameExists = await db.query(`SELECT * FROM games WHERE id = $1`, [gameId]);
+        console.log("gameExists.rows",gameExists.rows);
+        console.log(!!gameExists.rows);
+        if (gameExists.rows.length) return gameExists.rows;
+        return false;
+    }
+    catch (err) {
+        return console.log(err.message);
+    }
+}
+

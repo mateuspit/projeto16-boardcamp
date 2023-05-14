@@ -1,4 +1,4 @@
-import { getCustomersServices, getCustomersByIdServices, postCustomersServices, findCustomer, attCustomerServices } from "../services/customerServices.js";
+import { getCustomersServices, getCustomersByIdServices, postCustomersServices, findCustomerByCpf, attCustomerServices } from "../services/customerServices.js";
 
 
 export async function getCustomers(req, res) {
@@ -37,8 +37,8 @@ export async function getCustomersById(req, res) {
 
 export async function postCustomer(req, res) {
     try {
-        console.log(await findCustomer(req.body.cpf));
-        if (await findCustomer(req.body.cpf)) return res.status(409).send("Usuario já existe!");
+        console.log(await findCustomerByCpf(req.body.cpf));
+        if (await findCustomerByCpf(req.body.cpf)) return res.status(409).send("Usuario já existe!");
         await postCustomersServices(req.body);
         return res.sendStatus(201);
     }
@@ -52,7 +52,7 @@ export async function attCustomer(req, res) {
         //const allCpfs = await db.query(`SELECT cpf FROM customers`);
         //console.log(allCpfs)
         //const validCpf = await db.query(`SELECT cpf FROM customers WHERE cpf = $1`, [req.body.cpf]);
-        const getValidCpf = await findCustomer(req.body.cpf);
+        const getValidCpf = await findCustomerByCpf(req.body.cpf);
         //console.log("getValidCpf", getValidCpf);
         //console.log("req.body.cpf", req.body.cpf);
         console.log("getValidCpf", getValidCpf);
