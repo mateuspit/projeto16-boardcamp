@@ -1,6 +1,6 @@
 import { findCustomerById } from "../services/customerServices.js";
 import { findGameById } from "../services/gameServices.js";
-import { findGameStock, postRentalServices } from "../services/rentalsServices.js";
+import { findGameStock, postRentalServices, getRentalsServices } from "../services/rentalsServices.js";
 
 export async function postRental(req, res) {
     try {
@@ -13,6 +13,16 @@ export async function postRental(req, res) {
         if (!hasStock) return res.status(400).send("Estoque inexistente!");
         await postRentalServices(req.body);
         res.sendStatus(201);
+    }
+    catch (err) {
+        return console.log(err.message);
+    }
+}
+
+export async function getRentals(req, res) {
+    try {
+        const rentals = await getRentalsServices(req.query);
+        res.send(rentals);
     }
     catch (err) {
         return console.log(err.message);

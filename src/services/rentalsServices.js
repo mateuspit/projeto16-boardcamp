@@ -60,3 +60,79 @@ export async function postRentalServices(rentalData) {
         return console.log(err.message);
     }
 }
+
+export async function getRentalsServices(rentalFilters) {
+    const basicDBString = `SELECT rentals.id, rentals."customerId", rentals."gameId", rentals."rentDate", rentals."daysRented", rentals."returnDate", rentals."originalPrice", rentals."delayFee", customers.name AS "customerName", games.name AS "gameName"
+        FROM rentals
+        JOIN customers ON rentals."customerId" = customers.id
+        JOIN games ON rentals."gameId" = games.id`;
+    try {
+        console.log("rentalFilters.customerId", rentalFilters.customerId);
+        console.log("rentalFilters.gameId", rentalFilters.gameId);
+        console.log("rentalFilters.length", rentalFilters.length);
+        console.log("rentalFilters.length", !!rentalFilters.length);
+        let filterString = basicDBString;
+        let rentals
+        let values = [];
+        if (!rentalFilters.length) {
+            rentals = await db.query(filterString);
+            console.log(rentals);
+        }
+        if (rentalFilters.customerId) {
+            const customerIdFilter = ` WHERE rentals."customersId"=rentalFilter.customerId`
+        }
+        console.log("rentalFilters", rentalFilters);
+        console.log("rentalFilters.length === 0", (rentalFilters.rows));
+        console.log("filterString", filterString);
+        console.log("values", values);
+
+
+        //const 
+        //console.log("typeof rr.rentDate === 'string'", typeof rentals.rows[0].rentDate);
+        //const test = rentals.rows[0].rentDate.slice(0, 10);
+        //console.log("test", test);
+        //console.log(JSON.stringify(rentals.rows[0]));
+        //console.log(typeof rentals.rows[0].rentDate);
+        //console.log(new Date(rentals.rows[0].rentDate).toISOString().slice(0, 10));
+        const rentalsDataObject = rentals.rows.map(rr => ({
+            id: rr.id,
+            customerId: rr.customerId,
+            gameId: rr.gameId,
+            rentDate: new Date(rr.rentDate).toISOString().slice(0, 10),
+            daysRented: rr.daysRented,
+            returnDate: rr.returnDate,
+            originalPrice: rr.originalPrice,
+            delayFee: rr.delayFee,
+            customer: {
+                id: rr.customerId,
+                name: rr.customerName
+            },
+            game: {
+                id: rr.gameId,
+                name: rr.gameName
+            }
+        }));
+        //const rentalsDataObject = {
+        //    customerId: rentals.rows.customerId,
+        //    gameId: rentals.rows.gameId,
+        //    rentDate: rentals.rows.rentDate,
+        //    daysRented: rentals.rows.daysRented,
+        //    returnDate: rentals.rows.returnDate,
+        //    originalPrice: rentals.rows.originalPrice,
+        //    delayFee: rentals.rows.delayFee,
+        //    customer: {
+        //        id: rentals.rows.customerId,
+        //        name: rentals.rows.customerName
+        //    },
+        //    game: {
+        //        id: rentals.rows.gameId,
+        //        name: rentals.rows.gameName
+        //    }
+        //};
+        console.log(rentalsDataObject);
+        return rentalsDataObject;
+    }
+    catch (err) {
+        return console.log(err.message);
+    }
+}
