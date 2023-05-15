@@ -152,3 +152,53 @@ export async function getRentalsServices(rentalFilters) {
         return console.log(err.message);
     }
 }
+
+export async function findRentalById(rentalId) {
+    try {
+        const rental = await db.query(`SELECT * FROM rentals WHERE id=$1`, [rentalId]);
+        //console.log("rental.rows", rental.rows);
+        if (rental.rows.length) return rental.rows[0];
+    }
+    catch (err) {
+        return console.log(err.message);
+    }
+}
+
+export async function finishRentalServices(rentalData) {
+    try {
+        //adicionando a data de retorno do jogo
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = today.getMonth() + 1;
+        const day = today.getDate();
+        const returnDate = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+        console.log("returnDate", returnDate);
+        console.log("rentalData.id", rentalData.id);
+        await db.query(`UPDATE rentals SET "returnDate"=$1 WHERE id=$2`, [returnDate, rentalData.id]);
+
+        //pegando a diaria do jogo
+        const pricePerDay = await db.query(`SELECT "pricePerDay" FROM games WHERE id=$1`, [Number(rentalData.gameId)]);
+        console.log("pricePerDay.rows[0].pricePerDay", pricePerDay.rows[0].pricePerDay);
+
+        //adicionando multa, caso existe
+        //const pickGameData = new Date(rentalData.rentDate);
+        const pickGameData = new Date(rentalData.rentDate).getTime();
+        const combinedReturnData = (pickGameData) + rentalData.daysRented * 24 * 60 * 60 * 1000;
+        const returnDateTimeStamp = new Date(returnDate).getTime();
+        if (returnDateTimeStamp > combinedReturnData) {
+            const diffInMs = Math.abs(returnDateTimeStamp - combinedReturnData);
+            console.log("returnDateTimeStamp", returnDateTimeStamp);
+            console.log("combinedReturnData", combinedReturnData);
+            const delayFeeDays = Math.round(diffInMs / (1000 * 60 * 60 * 24));
+            console.log(diffInMs);
+            console.log("delayFeeDays", delayFeeDays);
+            //console.log("delayFeeDays", delayFeeDays);
+            //console.log("pricePerDay.rows[0].pricePerDay", pricePerDay.rows[0].pricePerDay);
+            const delayFeeFine = delayFeeDays * pricePerDay.rows[0].pricePerDay;
+            await db.query(`UPDATE rentals SET "delayFee"=$1 WHERE id=$2`, [Number(delayFeeFine), Number(rentalData.id)]);
+        }
+    }
+    catch (err) {
+        return console.log(err.message);
+    }
+}
