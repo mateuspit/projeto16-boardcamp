@@ -1,6 +1,6 @@
 import { findCustomerById } from "../services/customerServices.js";
 import { findGameById } from "../services/gameServices.js";
-import { findGameStock, postRentalServices, getRentalsServices, findRentalById, finishRentalServices } from "../services/rentalsServices.js";
+import { findGameStock, postRentalServices, getRentalsServices, findRentalById, finishRentalServices, deleteRentalsServices } from "../services/rentalsServices.js";
 
 export async function postRental(req, res) {
     try {
@@ -42,5 +42,19 @@ export async function finishRental(req, res) {
     }
     catch (err) {
         return console.log(err.message);
+    }
+}
+
+export async function deleteRentals(req, res) {
+    try {
+        const rentalExists = await findRentalById(req.params.id);
+        //console.log("rentalExists", rentalExists);
+        if (!rentalExists) return res.status(404).send("Aluguel inexistente!");
+        if (rentalExists.returnDate === null) return res.status(400).send("Aluguel não finalizado!");
+        await deleteRentalsServices(req.params.id);
+        res.sendStatus(200);
+    }
+    catch (err) {
+        console.log(err.message);
     }
 }

@@ -202,3 +202,12 @@ export async function finishRentalServices(rentalData) {
         return console.log(err.message);
     }
 }
+
+export async function deleteRentalsServices(rentalDataId) {
+    try {
+        await db.query(`DELETE FROM rentals WHERE id=$1`, [rentalDataId])
+    }
+    catch (err) {
+
+    }
+}
