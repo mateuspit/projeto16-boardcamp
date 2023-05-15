@@ -23,12 +23,22 @@ export async function getCustomers(req, res) {
 }
 
 export async function getCustomersById(req, res) {
-    try {
+    try {allCustomers
         //const idExists = await db.query(`SELECT id FROM customers WHERE id = $1`, [req.params.id]);
         //if(!idExists) return res.status(404).send("id não existe!");
         const customerById = await getCustomersByIdServices(req.params.id);
         if (customerById.length === 0) return res.status(404).send("id não existe!");
+        customerById.forEach((obj) => {
+            //const newBirthday = obj.birthday.toISOString().slice(0,10);
+            obj.birthday = obj.birthday.toISOString().slice(0, 10);;
+        });
         return res.send(customerById);
+        //if (allCustomers.length === 0) return res.status(404).send("Cliente n encontrado!")
+        //console.log(allCustomers);
+        //allCustomers.forEach((obj) => {
+        //    //const newBirthday = obj.birthday.toISOString().slice(0,10);
+        //    obj.birthday = obj.birthday.toISOString().slice(0, 10);;
+        //});
     }
     catch (err) {
         return console.log(err.message);

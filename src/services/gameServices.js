@@ -17,6 +17,35 @@ export async function getGamesService(gameFilters) {
             filterString += filterNameString;
             values = [nameFilter];
         }
+
+        if (gameFilters.status) {
+            if (gameFilters.status === "open") {
+                const filterStatusString = Object.keys(gameFilters).length === 4
+                    ? ` WHERE "returnDate"=$4` : Object.keys(gameFilters).length === 3
+                        ? ` WHERE "returnDate"=$3` : Object.keys(gameFilters).length === 2
+                            ? ` WHERE "returnDate"=$2` : ` WHERE "returnDate"=$1`;
+                filterString += filterStatusString;
+                values.push(null);
+            }
+            else if (gameFilters.status === "closed") {
+                const filterStatusString = Object.keys(gameFilters).length === 4
+                    ? ` WHERE "returnDate" IS NOT NULL` : Object.keys(gameFilters).length === 3
+                        ? ` WHERE "returnDate" IS NOT NULL` : Object.keys(gameFilters).length === 2
+                            ? ` WHERE "returnDate" IS NOT NULL` : ` WHERE "returnDate" IS NOT NULL`;
+                filterString += filterStatusString;
+            }
+        }
+        if (gameFilters.startDate) {
+            
+            const filterStartDateString = Object.keys(gameFilters).length === 5
+                ? ` WHERE "returnDate"=$5` : Object.keys(gameFilters).length === 4
+                    ? ` WHERE "returnDate"=$4` : Object.keys(gameFilters).length === 3
+                        ? ` WHERE "returnDate"=$3` : Object.keys(gameFilters).length === 2
+                            ? ` WHERE "returnDate"=$2` : ` WHERE "returnDate"=$1`;
+            filterString += filterStartDateString;
+            values.push(startDate);
+        }
+
         if (gameFilters.order) {
             const filterOrderString = ` ORDER BY "${gameFilters.order}"`;
             //const filterOrderString = ` ORDER BY name`
@@ -42,10 +71,10 @@ export async function getGamesService(gameFilters) {
             filterString += filterOffsetString;
             values.push(gameFilters.offset);
         }
-        console.log("gameFilters", gameFilters);
-        console.log("3", (Object.keys(gameFilters).length) === 3);
-        console.log("2", (Object.keys(gameFilters).length) === 2);
-        console.log("1", (Object.keys(gameFilters).length) === 1);
+        //console.log("gameFilters", gameFilters);
+        //console.log("3", (Object.keys(gameFilters).length) === 3);
+        //console.log("2", (Object.keys(gameFilters).length) === 2);
+        //console.log("1", (Object.keys(gameFilters).length) === 1);
         if (gameFilters.limit) {
             const filterLimitString = (gameFilters.name && gameFilters.offset)
                 ? ` LIMIT $3` : ((gameFilters.name || gameFilters.offset)
@@ -58,6 +87,9 @@ export async function getGamesService(gameFilters) {
             values.push(gameFilters.limit);
             //values.push(1);
         }
+
+        const firstWhereIndex = filterString.indexOf("WHERE"); // encontrar a posição do primeiro WHERE
+        filterString = filterString.slice(0, firstWhereIndex + 5) + filterString?.slice(firstWhereIndex + 5).replace(/WHERE/g, 'AND');
 
         console.log("filterString:", filterString);
         console.log("values:", values);
@@ -107,7 +139,7 @@ export async function findGameService(gameName) {
 export async function findGameById(gameId) {
     try {
         const gameExists = await db.query(`SELECT * FROM games WHERE id = $1`, [gameId]);
-        console.log("gameExists.rows",gameExists.rows);
+        console.log("gameExists.rows", gameExists.rows);
         console.log(!!gameExists.rows);
         if (gameExists.rows.length) return gameExists.rows;
         return false;
