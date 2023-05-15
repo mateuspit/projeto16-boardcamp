@@ -94,6 +94,14 @@ export async function getRentalsServices(rentalFilters) {
                 filterString += offsetFilter;
                 values.push(Number(rentalFilters.offset));
             }
+            if (rentalFilters.limit) {
+                const orderFilter = Object.keys(rentalFilters).length === 4
+                    ? ` LIMIT $4` : (Object.keys(rentalFilters).length === 3)
+                        ? ` LIMIT $3` : (Object.keys(rentalFilters).length === 2)
+                            ? ` LIMIT $2` : ` LIMIT $1`;
+                filterString += orderFilter;
+                values.push(Number(rentalFilters.limit));
+            }
             console.log("filterString", filterString);
             console.log("values", values);
             //rentals = await db.query(`SELECT rentals.id, rentals."customerId", rentals."gameId", rentals."rentDate", rentals."daysRented", rentals."returnDate", rentals."originalPrice", rentals."delayFee", customers.name AS "customerName", games.name AS "gameName"
