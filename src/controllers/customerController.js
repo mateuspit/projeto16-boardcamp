@@ -23,7 +23,7 @@ export async function getCustomers(req, res) {
 }
 
 export async function getCustomersById(req, res) {
-    try {allCustomers
+    try {
         //const idExists = await db.query(`SELECT id FROM customers WHERE id = $1`, [req.params.id]);
         //if(!idExists) return res.status(404).send("id não existe!");
         const customerById = await getCustomersByIdServices(req.params.id);
