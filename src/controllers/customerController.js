@@ -1,4 +1,4 @@
-import { getCustomersServices, getCustomersByIdServices, postCustomersServices, findCustomerByCpf, attCustomerServices } from "../services/customerServices.js";
+import { getCustomersServices, getCustomersByIdServices, postCustomersServices, findCustomerByCpf, attCustomerServices, findCustomerById } from "../services/customerServices.js";
 
 
 export async function getCustomers(req, res) {
@@ -48,29 +48,37 @@ export async function postCustomer(req, res) {
 }
 
 export async function attCustomer(req, res) {
+    //console.log("req.params", req.params.id)
+    const attUserId = Number(req.params.id);
+    //console.log(typeof attUserId);
+    //console.log("attUserId", attUserId);
     try {
-        //const allCpfs = await db.query(`SELECT cpf FROM customers`);
-        //console.log(allCpfs)
-        //const validCpf = await db.query(`SELECT cpf FROM customers WHERE cpf = $1`, [req.body.cpf]);
-        const getValidCpf = await findCustomerByCpf(req.body.cpf);
-        //console.log("getValidCpf", getValidCpf);
-        //console.log("req.body.cpf", req.body.cpf);
-        console.log("getValidCpf", getValidCpf);
-        console.log("req.body.cpf !== getValidCpf)", (req.body.cpf !== getValidCpf));
-        //console.log("!req.body.cpf", !req.body.cpf);
-        console.log("req.body.cpf", req.body.cpf);
-        if (((req.body.cpf !== getValidCpf.cpf) || !getValidCpf)) return res.status(409).send("Não é possivel alterar o CPF");
-        //if (!((req.body.cpf === getValidCpf) || !getValidCpf)) return res.status(409).send("Não é possivel alterar o CPF");
-        //await db.query(`UPDATE customers 
-        //            SET name=$1, phone=$2, cpf=$3, birthday=to_date($4, 'YYYY-MM-DD') WHERE cpf = $5`, [
-        //    req.body.name,
-        //    req.body.phone,
-        //    req.body.cpf,
-        //    req.body.birthday
-        //])
-        await attCustomerServices(req.body);
-        //if (!oldCpf) return res.status(409).send("Não é possivel alterar o CPF");
-        return res.sendStatus(200);
+        const customerDataToAtt = await findCustomerById(attUserId);
+        console.log("customerData", customerDataToAtt);
+        if (!customerDataToAtt) return res.status(404).send("Cliente inexistente!");
+        console.log("customerDataToAtt.cpf", customerDataToAtt.cpf);
+        // Busco no banco de dados um cliente com o CPF entrado em params
+        // Caso exista:
+        // Comparo os ids, se forem igual, faço a mudança
+        // Comparo os ids, se forem diferentes, não mudo error 409
+        // Caso não exista, faço a mudança
+        const customerData = await findCustomerByCpf(req.body.cpf);
+        console.log("customerData", customerData.cpf);
+        if (!customerData) {
+            //console.log("User não cadastrado, pode att");
+            //console.log("primeiro if");
+            await attCustomerServices(req.body, customerDataToAtt.cpf);
+            return res.sendStatus(200);
+        }
+        else if (customerData.cpf === customerDataToAtt.cpf) {
+            //console.log("segundo if");
+            await attCustomerServices(req.body, customerDataToAtt.cpf);
+            return res.sendStatus(200);
+        }
+        else {
+            //console.log("terceiro if")
+            return res.status(409).send("CPF pertence a outro cliente!")
+        }
     }
     catch (err) {
         return console.log(err.message);

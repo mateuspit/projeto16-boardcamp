@@ -98,12 +98,12 @@ export async function postCustomersServices(customerData) {
 
 export async function findCustomerByCpf(customerCpf) {
     try {
-        console.log(customerCpf);
+        //console.log(customerCpf);
         const customerExists = await db.query(`SELECT * FROM customers 
                                             WHERE cpf = $1`, [customerCpf]);
         //console.log("customerExists.rows[0]", customerExists.rows[0]);
         //console.log("customerExists.rows[0].cpf", customerExists.rows[0].cpf);
-        console.log("customerExists.rows[0]",!!customerExists.rows[0])
+        //console.log("customerExists.rows[0]",!!customerExists.rows[0])
         if (customerExists.rows[0]) return customerExists.rows[0];
         return false;
     }
@@ -112,16 +112,18 @@ export async function findCustomerByCpf(customerCpf) {
     }
 }
 
-export async function attCustomerServices(newCustomerData) {
+export async function attCustomerServices(newCustomerData, actualCustomerCpf) {
     try {
-        //console.log("newCustomerData", newCustomerData);
+        console.log("newCustomerData", newCustomerData);
+        console.log("actualCustomerCpf",actualCustomerCpf);
         await db.query(`UPDATE customers 
                     SET name=$1, phone=$2, cpf=$3, birthday=to_date($4, 'YYYY-MM-DD') 
-                    WHERE cpf = $3;`, [
+                    WHERE cpf = $5;`, [
                         newCustomerData.name,
                         newCustomerData.phone,
                         newCustomerData.cpf,
-                        newCustomerData.birthday
+                        newCustomerData.birthday,
+                        actualCustomerCpf
                         ])
     }
     catch (err) {
@@ -141,3 +143,12 @@ export async function findCustomerById(customerId){
         return console.log(err.message);
     }
 }
+
+//export async function attCustomerServices(attCustomerData){
+//    try{
+        
+//    }
+//    catch (err){
+//        return console.log(err.message);
+//    }
+//}
