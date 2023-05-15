@@ -87,6 +87,15 @@ export async function getRentalsServices(rentalFilters) {
                 filterString += gameIdFilter;
                 values.push(Number(rentalFilters.gameId));
             }
+            if (rentalFilters.order) {
+                const orderFilter = ` ORDER BY "${rentalFilters.order}"`
+                filterString += orderFilter;
+                console.log("rentalFilters.desc", rentalFilters.desc);
+                if (rentalFilters.desc === "true") {
+                    const descFilter = ` DESC`;
+                    filterString += descFilter;
+                }
+            }
             if (rentalFilters.offset) {
                 const offsetFilter = (rentalFilters.customerId && rentalFilters.gameId)
                     ? ` OFFSET $3` : (rentalFilters.customerId || rentalFilters.gameId)
@@ -95,11 +104,11 @@ export async function getRentalsServices(rentalFilters) {
                 values.push(Number(rentalFilters.offset));
             }
             if (rentalFilters.limit) {
-                const orderFilter = Object.keys(rentalFilters).length === 4
+                const limitFilter = Object.keys(rentalFilters).length === 4
                     ? ` LIMIT $4` : (Object.keys(rentalFilters).length === 3)
                         ? ` LIMIT $3` : (Object.keys(rentalFilters).length === 2)
                             ? ` LIMIT $2` : ` LIMIT $1`;
-                filterString += orderFilter;
+                filterString += limitFilter;
                 values.push(Number(rentalFilters.limit));
             }
             console.log("filterString", filterString);
