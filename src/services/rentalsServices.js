@@ -67,35 +67,42 @@ export async function getRentalsServices(rentalFilters) {
         JOIN customers ON rentals."customerId" = customers.id
         JOIN games ON rentals."gameId" = games.id`;
     try {
-        console.log("rentalFilters.customerId", rentalFilters.customerId);
-        console.log("rentalFilters.gameId", rentalFilters.gameId);
-        console.log("rentalFilters.length", rentalFilters.length);
-        console.log("rentalFilters.length", !!rentalFilters.length);
         let filterString = basicDBString;
-        let rentals
+        let rentals;
         let values = [];
-        if (rentalFilters.length) {
+        if (Object.keys(rentalFilters).length === 0) {
             rentals = await db.query(filterString);
-            //console.log(rentals);
+            console.log(!!rentalFilters.length);
         }
-        else{
+        else {
             if (rentalFilters.customerId) {
-                console.log("rentalFilters.customerIdfff");
                 const customerIdFilter = ` WHERE rentals."customerId"=$1`;
                 filterString += customerIdFilter;
-                values.push(rentalFilters.customerId);
+                values.push(Number(rentalFilters.customerId));
             }
-            console.log("filterString",filterString);
-            console.log("values",values);
-            rentals = await db.query(filterString, values);
-        }
-        
-        //console.log("rentalFilters", rentalFilters);
-        //console.log("rentalFilters.length === 0", (rentalFilters.rows));
-        //console.log("filterString", filterString);
-        //console.log("values", values);
+            if (rentalFilters.gameId) {
+                console.log("rentalFilters.customerIdFilter", rentalFilters.customerId)
+                const gameIdFilter = rentalFilters.customerId
+                    ? ` WHERE rentals."gameId"=$2` : (` WHERE rentals."gameId"=$1`);
+                filterString += gameIdFilter;
+                values.push(Number(rentalFilters.gameId));
+            }
+            console.log("filterString", filterString);
+            console.log("values", values);
+            //rentals = await db.query(`SELECT rentals.id, rentals."customerId", rentals."gameId", rentals."rentDate", rentals."daysRented", rentals."returnDate", rentals."originalPrice", rentals."delayFee", customers.name AS "customerName", games.name AS "gameName"
+            //FROM rentals
+            //JOIN customers ON rentals."customerId" = customers.id
+            //JOIN games ON rentals."gameId" = games.id 
+            //WHERE rentals."customerId"=$1`, [Number(rentalFilters.customerId)]);
+            //let query = "JOIN games ON rentals.gameId = games.id WHERE rentals.customerId=$1 WHERE rentals.gameId=$2";
 
-        
+            const firstWhereIndex = filterString.indexOf("WHERE"); // encontrar a posição do primeiro WHERE
+            filterString = filterString.slice(0, firstWhereIndex + 5) + filterString?.slice(firstWhereIndex + 5).replace(/WHERE/g, 'AND');
+            rentals = await db.query(filterString, values);
+            console.log("filterString", filterString);
+            console.log("values", values);
+            //console.log("rentals.rows", rentals.rows);
+        }
         const rentalsDataObject = rentals.rows.map(rr => ({
             id: rr.id,
             customerId: rr.customerId,
